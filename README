@@ -1,0 +1,55 @@
+
++ quick story explaining addition of echoGrob() to 'gridGraphics'
+
+  - see ../../Examples/EivinDovik/ which requires (I think) echoGrob()
+    so that you can pass an object to, e.g., gridExtra::grid.arrange()
+
++ possible outline ?
+
+  - "echoing the future"
+
+  - already have grid.echo() - what about echoGrob() ?
+
+  - motivating example:  grid.arrange()
+
+  - example of a makeContent()
+
+  - example of grid.grabExpr()
+
+  - NOTE: works for both recordedPlot and function arguments to grid.echo()
+
++ possible outline ?
+  - grid.echo() 
+
+    echoes what is currently drawn
+    (but you have to draw it first)
+
+  - grid.echo(f) 
+
+    echoes what f() would draw
+    (without having to draw it first)
+
+  - pushViewport()
+    grid.echo(f, newpage=TRUE)
+    upViewport()
+
+    echoes what f() would draw in a subregion of the page 
+    (that I create)
+    (without having to draw it first)
+
+  - downViewport()
+    grid.echo(f, newpage=TRUE)
+    upViewport()
+
+    echoes what f() would draw in a subregion of the page 
+    (that someone else HAS created)
+    (without having to draw it first)
+
+  - eg <- echoGrob(f)
+    grid.arrange(eg)
+
+    echoes what f() would draw in a subregrion of the page
+    (that someone else WILL create)
+    (without having to draw it first)
+
+    BUT you have to grid.force() to see the echoed grobs

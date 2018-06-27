@@ -1,0 +1,633 @@
+<html>
+  <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style type="text/css">
+    @media print {
+      body { }
+      p.img { text-align: center; page-break-inside: avoid }
+      img.CC { display: inline }
+    }
+    @media screen {
+      body { max-width: 800px; margin: auto }
+      p.img { text-align: center }
+      img.CC { display: inline }
+    }
+    p.date {
+      font-size: smaller;
+      margin: 0;
+    }
+    p.versionHistory {
+      color: gray
+    }
+    p.versionHistory a {
+      color: gray
+    }
+    p.ref {
+      text-indent: -2em;
+      padding-left: 2em;
+    }
+  </style>
+  </head>
+  <body>
+    <h1>Echoes of the Future</h1>
+    <p>
+      <span style="font-style: italic">by Paul Murrell</span>
+      <a href="http://orcid.org">
+        <img alt="" src="https://www.stat.auckland.ac.nz/~paul/ORCID/ORCiD.png" style="width: 16px; height: 16px; vertical-align: middle">
+      </a>
+      <span style="font-family: mono; font-size: small">
+        <a href="http://orcid.org/0000-0002-3224-8858">http://orcid.org/0000-0002-3224-8858</a>
+      </span>
+    </p>
+    <p class="date">
+    Version 1:
+<!--begin.rcode echo=FALSE, results="asis"
+cat(format(Sys.Date(), "%A %d %B %Y"))
+    end.rcode-->
+  </p>
+<!--begin.rcode init, echo=FALSE, message=FALSE, results="hide"
+opts_chunk$set(comment=" ", tidy=FALSE)
+options(width=100)
+## For wonky desktop set up
+options(bitmapType="cairo")
+  end.rcode-->
+<!--begin.rcode echo=FALSE
+    library(grid)
+  end.rcode-->
+    <hr>
+    <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img class="CC" alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">This document</span>
+    by <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">Paul
+    Murrell</span> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative
+    Commons Attribution 4.0 International License</a>.
+  </p>
+    <hr>
+    <p>
+    This report discusses ways to combine graphics output from the
+    'graphics' package and the 'grid' package in R.
+    We also introduce a new function <code>echoGrob</code>
+    in the 'gridGraphics' package.
+  </p>
+    <div>
+      <h2>Table of Contents:</h2>
+      <ul style="list-style: none">
+        <li>
+          <a href="#intro">1. The problem</a>
+        </li>
+        <li>
+          <a href="#combining">2. Combining 'graphics' and 'grid' output</a>
+        </li>
+        <li>
+          <a href="#echogrob">3. The echoGrob function</a>
+        </li>
+        <li>
+          <a href="#force">4. Details</a>
+        </li>
+        <li>
+          <a href="#summary">5. Summary</a>
+        </li>
+        <li>
+          <a href="#requirements">6. Technical requirements</a>
+        </li>
+        <li>
+          <a href="#Resources">7. Resources</a>
+        </li>
+        <li>
+          <a href="#references">8. References</a>
+        </li>
+      </ul>
+    </div>
+    <h2>
+      <a name="intro">1. The problem</a>
+    </h2>
+    <p>
+    A <a href="https://stat.ethz.ch/pipermail/r-help/2018-May/454510.html">question on R-help</a>
+    (Ed Siefker, "drc, ggplot2, and gridExtra", 2018-05-18) asked about
+    arranging a 'grid'-based graphical table alongside a
+    'graphics'-based plot.  The image below shows the sort of result
+    we are looking for.  On the left is a 'graphics' scatterplot
+    and on the right is output from the <code>grid.table</code>
+    function from the 'gridExtra' package (<a href="#pkg:gridExtra"></a>).
+  </p>
+<!--begin.rcode data, echo=FALSE
+mtcarsCols <- mtcars[c(1, 3)]
+  end.rcode-->
+<!--begin.rcode gridExtra, echo=FALSE
+library(gridExtra)    
+  end.rcode-->
+<!--begin.rcode gridGraphics, echo=FALSE
+library(gridGraphics)
+  end.rcode-->
+<!--begin.rcode echo=FALSE
+p <- echoGrob(function() plot(mpg ~ disp, mtcarsCols), 
+              prefix="plot1", name="plot1")
+t <- tableGrob(head(mtcarsCols))    
+  end.rcode-->
+<!--begin.rcode echo=FALSE
+grid.arrange(p, t, ncol=2)
+  end.rcode-->
+    <p>
+    This report discusses some different solutions to this problem,
+    including a new approach based on the <code>echoGrob</code>
+    function from the 'gridGraphics' package (CITE).
+  </p>
+    <h2>
+      <a name="combining">2. Combining 'graphics' and 'grid' output</a>
+    </h2>
+    <p>
+    The 'graphics' and 'grid' graphics systems in R (<a href="#R">R Core Team, 2018</a>)
+    are completely independent from each other.  When it comes to
+    arranging multiple plots on a page, this means that 'grid'-based
+    plots, such as those from the 'lattice' package (<a href="#pkg:lattice"></a>)
+    or those from the 'ggplot2' package (<a href="#pkg:ggplot2"></a>),
+    do not respond to <code>par(mfrow)</code> from the 'graphics' package.
+    Conversely, 'graphics'-based plots do not respond to 
+    viewports from 'grid', or higher level 'grid'-based tools
+    such as <code>grid.arrange</code> from the 'gridExtra' package.
+  </p>
+    <p>
+    Although the two graphics systems ignore each other,
+    it is still possible to draw both 'graphics' and 'grid' output together
+    on the same page.  The following code provides a simple
+    demonstration; if we draw a 
+    'graphics' scatterplot and a 'gridExtra' table on the 
+    same page, both types of output are drawn, 
+    though the latter completely overlaps with the former.
+  </p>
+<!--begin.rcode 
+<<gridExtra>>
+<<data>>
+  end.rcode-->
+<!--begin.rcode 
+plot(mpg ~ disp, mtcarsCols)
+grid.table(head(mtcarsCols))
+  end.rcode-->
+    <p>
+    Because the two graphics systems essentially ignore each other,
+    we can produce simple arrangements by arranging output for
+    each graphics system separately.
+    The following code does this by shifting the scatterplot to the
+    left, using <code>par(mfrow)</code>,
+    and the table to the right, using a 'grid' viewport.
+  </p>
+<!--begin.rcode grid
+library(grid)    
+  end.rcode-->
+<!--begin.rcode 
+par(mfrow=c(1, 2))
+plot(mpg ~ disp, mtcarsCols)
+pushViewport(viewport(x=.5, width=.5, just="left"))
+grid.table(head(mtcarsCols))
+popViewport()
+  end.rcode-->
+    <p>
+    The 'gridBase' package allows us to do something similar, but
+    ensures that the 'grid' viewport is coherent with the 
+    'graphics' figure regions. 
+  </p>
+<!--begin.rcode gridBase
+library(gridBase)    
+  end.rcode-->
+    <p>
+    In the code below, we set up an arrangement of two plots as
+    before, with <code>par(mfrow)</code>.  The 'graphics' plot
+    is drawn on the left and then we start an empty plot on the
+    right with a call to <code>plot.new</code>.  
+    The call to <code>baseViewports</code> generates a set of
+    'grid' viewports that correspond to the plot, figure, and inner
+    region for the plot on the right.  We push the inner region
+    viewport then the figure region viewport and draw the 
+    'gridExtra' table within that.
+  </p>
+<!--begin.rcode 
+par(mfrow=c(1, 2))
+plot(mpg ~ disp, mtcarsCols)
+plot.new()
+basevps <- baseViewports()
+pushViewport(basevps$inner, basevps$figure)
+grid.table(head(mtcarsCols))
+popViewport(2)    
+  end.rcode-->
+    <p>
+    The advantage of working with properly aligned viewports like this
+    is that we can locate output precisely, without guesswork,
+    and programmatically.  For example, the following code
+    places the 'gridExtra' 
+    table just inside the top-right corner of the 'graphics' plot.
+  </p>
+    <p>
+    In this code, we draw only one 'graphics' plot on the page,
+    then set up 'grid' viewports corresponding to that plot.
+    This time we also push the viewport corresponding to the plot
+    region.  This allows us to position a viewport just inside 
+    the top-right corner of the plot region.
+    Rather than drawing the 'gridExtra' table directly,
+    we first generate a table grob (an object representing the table).
+    This allows us to size the viewport to precisely fit the table,
+    so that when we draw the table it fits snugly up in the top-right
+    corner of the plot.
+  </p>
+    <p>
+    The table that 'gridExtra' creates is actually a "gtable" from the
+    'gtable' package (CITE) and we need to load that package to be able
+    to query the width and height of the table.
+  </p>
+<!--begin.rcode gtable
+library(gtable)
+  end.rcode-->
+<!--begin.rcode 
+plot(mpg ~ disp, mtcarsCols)
+basevps <- baseViewports()
+pushViewport(basevps$inner, basevps$figure, basevps$plot)
+gt <- tableGrob(head(mtcarsCols))
+pushViewport(viewport(x=unit(1, "npc") - unit(1, "mm"), 
+                      y=unit(1, "npc") - unit(1, "mm"), 
+                      just=c("right", "top"),
+                      width=gtable_width(gt), 
+                      height=gtable_height(gt)))
+grid.draw(gt)
+popViewport(4)
+  end.rcode-->
+    <p>
+    The 'gridGraphics' package provides a completely different approach.
+    The <code>grid.echo</code> function can be used to 
+    convert the 'graphics' plot into a 'grid' equivalent
+    and then everything can be arranged using 'grid'-based tools.
+  </p>
+    <p>
+    In the following code, we create two viewports, one on the left and
+    one on the right, to arrange the 'graphics' plot and the 'gridExtra'
+    table side by side.  The 'gridExtra' table is 'grid' output, so we 
+    can just navigate down to the viewport on the right and draw it.
+    To draw the 'graphics' plot, we navigate down to the viewport on the
+    left and call <code>grid.echo</code>, giving it a function that
+    calls <code>plot</code> to draw the plot.
+  </p>
+    <p>
+    The <code>grid.echo</code> function opens a device off-screen that is
+    the same size as the viewport that we are drawing into, calls the function
+    that we gave it to draw the plot off-screen, and then draws a 'grid'
+    version of the off-screen plot in the viewport that we can see.
+  </p>
+<!--begin.rcode 
+<<gridGraphics>>
+  end.rcode-->
+<!--begin.rcode grid.echo
+pushViewport(viewport(x=0, width=.5, just="left", name="left"))
+upViewport()
+pushViewport(viewport(x=.5, width=.5, just="left", name="right"))
+upViewport()    
+downViewport("right")
+grid.table(head(mtcarsCols))
+upViewport()
+downViewport("left")
+grid.echo(function() plot(mpg ~ disp, mtcarsCols),
+          newpage=FALSE)
+upViewport()
+  end.rcode-->
+    <p>
+    The result looks the same as several previous examples, but it
+    is different because all of the drawing was performed by 'grid'.
+    The advantage of having everything 'grid'-based is that we can
+    use 'grid' tools to add to or modify the combined plots.
+    The following code provides an example.
+  </p>
+    <p>
+    We navigate to the viewport that corresponds
+    to the plot region for the converted 'graphics' plot and
+    draw a filled circle over the first data point in the plot.
+    We also call <code>grid.move.to</code> to define the start
+    of a line segment at that data point.
+    We then navigate to the first column of the first
+    (data) row of the table.  Within that cell, we push a viewport
+    with clipping turned off, draw a rectangle around the cell,
+    and draw a line segment from the data point in the plot to
+    the left edge of the rectangle.  
+  </p>
+<!--begin.rcode gridannotate, eval=FALSE
+row1 <- mtcarsCols[1,]
+downViewport("plot1-window-1-1")
+grid.points(row1$disp, row1$mpg, pch=16)
+grid.move.to(row1$disp, row1$mpg, default.units="native")
+upViewport(0)
+downViewport("rowhead-bg.2-1-2-1")
+pushViewport(viewport(clip="off"))
+grid.rect(gp=gpar(fill=NA))
+grid.line.to(0, .5)
+upViewport(0)
+  end.rcode-->
+<!--begin.rcode echo=FALSE
+<<grid.echo>>
+<<gridannotate>>
+  end.rcode-->
+    <h2>
+      <a name="echogrob">3. The echoGrob function<code>echoGrob</code> function</a>
+    </h2>
+    <p>
+    One disadvantage of the <code>grid.echo</code>
+    approach shown above is that using explicit 
+    viewports to arrange output 
+    can make your head hurt, or your fingers hurt (or both).
+    Fortunately, 
+    there are high-level functions that hide the complexity of 
+    viewports from us, such as
+    <code>grid.arrange</code> from 'gridExtra'.  A "gtable" from 'gtable'
+    is also hiding a lot of viewport machinery.
+  </p>
+    <p>
+    The complication with using these higher-level tools is that they
+    arrange 'grid' grobs;  we must create a graphical object representing
+    some output rather than just drawing the output.  This means
+    that we cannot use
+    <code>grid.echo</code> because that just draws output, it does not
+    return any grobs.
+  </p>
+    <p>
+    One way that we can create a grob from output is with the
+    <code>grid.grab</code> function.  For example, the following code
+    draws a 'graphics' plot, generates a 'grid' version with 
+    <code>grid.echo</code>, and then creates a grob by calling
+    <code>grid.grab</code> on the result.
+  </p>
+<!--begin.rcode grid.grab, eval=FALSE
+plot(mpg ~ disp, mtcarsCols)
+grid.echo()
+pg <- grid.grab()
+  end.rcode-->
+<!--begin.rcode echo=FALSE, results="hide", fig.keep="none"
+pdf(NULL)
+dev.control("enable")
+<<grid.grab>>
+dev.off()
+  end.rcode-->
+    <p>
+    We can then pass that grob, <code>pg </code> in this case, to functions
+    like <code>grid.arrange</code>.  The following code arranges this
+    grob alongside the table grob that we created previously.
+  </p>
+<!--begin.rcode grid.arrange
+grid.arrange(pg, gt, ncol=2)
+  end.rcode-->
+    <p>
+    But there is a problem - the y-axis label is missing from the plot.
+    This happens because the plot that we echoed and then grabbed was
+    drawn within a full page, so the dimensions of the plot are only
+    correct for drawing on a full page (not half a page like we have done).
+  </p>
+    <p>
+    The following code creates a new grob, this time making sure
+    to draw, echo, and grab the plot within a device that is only 
+    half the width of a normal device.
+  </p>
+<!--begin.rcode results="hide", fig.keep="none"
+pdf(NULL, width=3.5, height=7)
+dev.control("enable")
+<<grid.grab>>
+dev.off()
+  end.rcode-->
+<!--begin.rcode 
+<<grid.arrange>>
+  end.rcode-->
+    <p>
+    The result is now correct.  However, we still have a problem.
+    What we have done is create a grob based on a graphics device that
+    is sized to be exactly as big as the region that 
+    the grob is going to be drawn within.
+    The reason we are using <code>grid.arrange</code> is so that
+    we do not have to figure out for ourselves how big each region
+    in our arrangement is going to be.  For more complex arrangements,
+    we definitely do not want to have to calculate region sizes
+    ourselves.
+  </p>
+    <p>
+    What we need is a function that will do the echo and grab 
+    only when it is time to draw (when <code>grid.arrange</code>
+    has already figured out the region sizes).  This is the
+    purpose of the new <code>echoGrob</code> function in the
+    'gridGraphics' package.
+  </p>
+    <p>
+    The <code>echoGrob</code> function creates a grob with class
+    "echogrob" that
+    records a function, but does not evaluate the function
+    (<code>echoGrob</code> also accepts a 
+    "recordedPlot";  see gridGraphics report [CITE] and display list report
+    [cite]).  This is an example of a 'grid' grob that calculates what
+    it will draw only when it comes time to draw the grob.
+    There is a
+    <code>makeContent</code> method (CITE makeContent article)
+    for "echogrob"s that is run at drawing time.  This
+    determines the size of the viewport that drawing is occurring within,
+    opens an off-screen device of that size, calls <code>grid.echo</code>
+    on that device (which opens another off-screen device, calls the
+    function that was stored in the "echogrob" grob, then draws a 'grid'
+    version on the first off-screen device), then grabs the 'grid'
+    output and returns the resulting grob.
+  </p>
+    <p>
+    The following code shows how we might use <code>echoGrob</code>
+    to draw a 'graphics' plot next to a 'gridExtra' table, using
+    <code>grid.arrange</code> to do the arranging.
+  </p>
+<!--begin.rcode 
+pg <- echoGrob(function() plot(mpg ~ disp, mtcarsCols))
+<<grid.arrange>>
+  end.rcode-->
+    <p>
+    The following code demonstrates how <code>echoGrob</code>
+    automatically adapts to the region that it is asked to draw
+    within.  We create an arrangement that still only has two
+    regions, but we make the region on the right
+    just wide enough to fit the table and allow the region on the
+    left to fill up the remaining width.  This is a simple example of how
+    we can benefit from leaving the calculation of regions up to 
+    <code>grid.arrange</code>.
+  </p>
+<!--begin.rcode adapt
+widths <- unit.c(unit(1, "null"), gtable_width(gt))
+grid.arrange(pg, gt, widths=widths)
+  end.rcode-->
+    <h2>
+      <a name="force">4. Details</a>
+    </h2>
+    <p>
+    A disadvantage of using tools like <code>echoGrob</code>
+    (and "gtable"s and <code>grid.arrange</code>),
+    that have a <code>makeContent</code>
+    method to determine what to draw at drawing time, is
+    that they do not record what they draw on the 'grid' display list.
+  </p>
+<!--begin.rcode grid.ls, eval=FALSE
+grid.ls()
+  end.rcode-->
+<!--begin.rcode echo=FALSE, fig.keep="none"
+<<adapt>>
+<<grid.ls>>
+  end.rcode-->
+    <p>
+    This means that we cannot modify the output of these tools.
+    However, we can gain access to everything that has been drawn by
+    calling the <code>grid.force</code> function.  
+  </p>
+<!--begin.rcode grid.force, eval=FALSE
+grid.force()
+  end.rcode-->
+<!--begin.rcode eval=FALSE
+<<grid.ls>>
+  end.rcode-->
+<!--begin.rcode echo=FALSE, fig.keep="none"
+<<adapt>>
+<<grid.force>>
+<<grid.ls>>
+  end.rcode-->
+    <p>
+    With the grobs (and viewports) available, we can use the same
+    code that we used in a previous example to draw a line from
+    a data point on the plot to a cell in the table.
+  </p>
+<!--begin.rcode eval=FALSE
+<<gridannotate>>
+  end.rcode-->
+<!--begin.rcode echo=FALSE
+<<adapt>>
+<<grid.force>>
+<<gridannotate>>
+  end.rcode-->
+    <p>
+    TODO: mention 'cowplot' package (CITE), which provides a convenient
+    high-level interface to many of these ideas and tools.
+  </p>
+    <p>
+    TODO: talk to Claus Wilke about improving capture of 
+    recordedPlots and functions.
+  </p>
+    <h2>
+      <a name="summary">5. Summary</a>
+    </h2>
+    <p>
+  </p>
+    <h2>
+      <a name="requirements">6. Technical requirements</a>
+    </h2>
+    <p>
+    The examples and discussion in this document relate to <a href="https://github.com/pmur002/gridGraphics/releases/tag/v0.4-0">version
+    0.4-0</a> of the 'gridGraphics' package, which in turn relies on 
+    the development version of R (revision r74931),
+    which will become R version 3.6.0.
+  </p>
+    <p>
+    This report was generated within a Docker container
+    (see <a href="#Resources">Resources</a> section below).
+  </p>
+    <h2>
+      <a name="Resources">7. Resources</a>
+    </h2>
+    <ul>
+      <li>
+      The <a href="echogrob.cml">raw source file</a> for this
+      report, a <a href="echogrob.xml">valid XML</a>
+      transformation of the source file, a <a href="echogrob.Rhtml">'knitr' document</a> generated from
+      the XML file, 
+      two <a href="toc.R">R</a> <a href="bib.R">files</a> and
+      the <a href="echogrob.bib">bibtex file</a>
+      that are used to generate the table of contents and reference sections,
+      two <a href="common.xsl">XSL</a> <a href="knitr.xsl">files</a> and an 
+      <a href="knit.R">R file</a> that are used to transform the XML to
+      the 'knitr' document, and a <a href="Makefile">Makefile</a> that
+      contains code for the other transformations and coordinates
+      everything.  
+      These materials are also available
+      on <a href="https://github.com/pmur002/echogrob-report/releases/tag/v1">github</a>.
+    </li>
+      <li>
+      This report was generated within a 
+      <a href="https://www.docker.com/">Docker</a> container.
+      The Docker command to build the report is included in the Makefile above.
+      The Docker image for the container is available from
+      <a href="https://hub.docker.com/r/pmur002/echogrob/">Docker Hub</a>;
+      alternatively, the image can be rebuilt from its 
+      <a href="Dockerfile">Dockerfile</a>.
+    </li>
+    </ul>
+    <h2>How to cite this document</h2>
+    <p>
+    Murrell, P. (2018). "Echoes of the Future" 
+    Technical Report 2018-??, Department of Statistics, The University of Auckland. 
+    [ <a href="how-to-cite.bib">bib</a> ] 
+  </p>
+    <h2>
+      <a name="references">8. References</a>
+    </h2>
+    <dl>
+<dt>
+[<a name="pkg:gridBase">Murrell, 2014</a>]
+</dt>
+<dd>
+Murrell, P. (2014).
+ <em>gridBase: Integration of base and grid graphics</em>.
+ R package version 0.4-7.
+[ <a href="echogrob-bib_bib.html#pkg:gridBase">bib</a> | 
+<a href="https://CRAN.R-project.org/package=gridBase">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="pkg:gridGraphics">Murrell and Wen, 2018</a>]
+</dt>
+<dd>
+Murrell, P. and Wen, Z. (2018).
+ <em>gridGraphics: Redraw Base Graphics Using 'grid' Graphics</em>.
+ R package version 0.3-1.
+[ <a href="echogrob-bib_bib.html#pkg:gridGraphics">bib</a> | 
+<a href="https://github.com/pmur002/gridgraphics">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="R">R Core Team, 2018</a>]
+</dt>
+<dd>
+R Core Team (2018).
+ <em>R: A Language and Environment for Statistical Computing</em>.
+ R Foundation for Statistical Computing, Vienna, Austria.
+[ <a href="echogrob-bib_bib.html#R">bib</a> | 
+<a href="https://www.R-project.org/">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="pkg:lattice">Sarkar, 2008</a>]
+</dt>
+<dd>
+Sarkar, D. (2008).
+ <em>Lattice: Multivariate Data Visualization with R</em>.
+ Springer, New York.
+ ISBN 978-0-387-75968-5.
+[ <a href="echogrob-bib_bib.html#pkg:lattice">bib</a> | 
+<a href="http://lmdvr.r-forge.r-project.org">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="pkg:ggplot2">Wickham, 2009</a>]
+</dt>
+<dd>
+Wickham, H. (2009).
+ <em>ggplot2: Elegant Graphics for Data Analysis</em>.
+ Springer-Verlag New York.
+[ <a href="echogrob-bib_bib.html#pkg:ggplot2">bib</a> | 
+<a href="http://ggplot2.org">http</a> ]
+
+</dd>
+</dl>
+    <hr>
+    <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img class="CC" alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">This document</span>
+    by <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">Paul
+    Murrell</span> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative
+    Commons Attribution 4.0 International License</a>.
+  </p>
+  </body>
+</html>
