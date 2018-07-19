@@ -575,7 +575,7 @@ plot_grid(function() plot(mpg ~ disp, mtcarsCols), gt, ncol=2)
   <h2>How to cite this document</h2>
   <p>
     Murrell, P. (2018). "Echoes of the Future" 
-    Technical Report 2018-??, Department of Statistics, The University of Auckland. 
+    Technical Report 2018-07, Department of Statistics, The University of Auckland. 
     [ <a href="how-to-cite.bib">bib</a> ] 
   </p>
 
