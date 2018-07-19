@@ -1,8 +1,8 @@
 
 TARFILE = ../echogrob-deposit-$(shell date +'%Y-%m-%d').tar.gz
 # For building on my office desktop
-Rscript = ~/R/r-devel/BUILD/bin/Rscript
-# Rscript = Rscript
+# Rscript = ~/R/r-devel/BUILD/bin/Rscript
+Rscript = Rscript
 
 %.xml: %.cml
 	# Protect HTML special chars in R code chunks

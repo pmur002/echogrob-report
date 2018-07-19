@@ -30,7 +30,7 @@
 
    E.G., test that the report will build !!!
 
-  sudo docker run -v /home/pmur002/Files/Research/Rstuff/Raster/pubs/echogrob-report/:/home/work/ -w /home/work --rm -t -i pmur002/echogrob /bin/bash
+  sudo docker run -v /home/pmur002/Files/Research/Rstuff/Integration/gridGraphics/pubs/echogrob-report/:/home/work/ -w /home/work --rm -t -i pmur002/echogrob /bin/bash
 
 + To make image available on DockerHub ...
 

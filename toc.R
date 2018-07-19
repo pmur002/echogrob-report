@@ -10,6 +10,7 @@ xml <- read_xml(filename)
 anchors <- xml_find_all(xml, "//h2/a")
 names <- xml_attr(anchors, "name")
 headings <- xml_text(anchors)
+contents <- lapply(anchors, xml_contents)
 ## Label references to sections
 for (i in seq_along(names)) {
     refs <- xml_find_all(xml, paste0("//a[@href = '#", names[i], "']"))
@@ -18,8 +19,14 @@ for (i in seq_along(names)) {
     }
 }
 ## Add section numbers
+## Text version (for TOC)
 newheadings <- paste0(1:length(anchors), ". ", headings)
-xml_text(anchors) <- newheadings
+## Inline version (could contain markup, NOT just text)
+## (ASSUMES that FIRST child of anchor is text)
+xml_text(anchors) <- mapply(function(x, i) {
+                                paste0(i, ". ", xml_text(x)[1])
+                            },
+                            contents, 1:length(anchors), SIMPLIFY=TRUE)
 ## Replace <toc/> element with this content
 toc <- paste('<div><h2>Table of Contents:</h2><ul style="list-style: none">',
              paste0('<li><a href="#', names, '">', newheadings, '</a></li>',

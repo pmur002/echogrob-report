@@ -68,8 +68,8 @@ options(bitmapType="cairo")
   <hr/>
   <p>
     This report discusses ways to combine graphics output from the
-    'graphics' package and the 'grid' package in R.
-    We also introduce a new function <code>echoGrob</code>
+    'graphics' package and the 'grid' package in R and
+    introduces a new function <code>echoGrob</code>
     in the 'gridGraphics' package.
   </p>
 
@@ -105,7 +105,8 @@ grid.arrange(p, t, ncol=2)
   <p>
     This report discusses some different solutions to this problem,
     including a new approach based on the <code>echoGrob</code>
-    function from the 'gridGraphics' package (CITE).
+    function from the 'gridGraphics' package 
+    (<a href="#pkg:gridGraphics"/>).
   </p>
   
   <h2><a name="combining">Combining 'graphics' and 'grid' output</a></h2>
@@ -118,7 +119,7 @@ grid.arrange(p, t, ncol=2)
     do not respond to <code>par(mfrow)</code> from the 'graphics' package.
     Conversely, 'graphics'-based plots do not respond to 
     viewports from 'grid', or higher level 'grid'-based tools
-    such as <code>grid.arrange</code> from the 'gridExtra' package.
+    such as the <code>grid.arrange</code> function from the 'gridExtra' package.
   </p>
   <p>
     Although the two graphics systems ignore each other,
@@ -126,8 +127,8 @@ grid.arrange(p, t, ncol=2)
     on the same page.  The following code provides a simple
     demonstration; if we draw a 
     'graphics' scatterplot and a 'gridExtra' table on the 
-    same page, both types of output are drawn, 
-    though the latter completely overlaps with the former.
+    same page, both types of output are drawn; 
+    the latter just completely overlaps with the former.
   </p>
   <rcode>
 <<gridExtra>>
@@ -204,7 +205,8 @@ popViewport(2)
   </p>
   <p>
     The table that 'gridExtra' creates is actually a "gtable" from the
-    'gtable' package (CITE) and we need to load that package to be able
+    'gtable' package (<a href="#pkg:gtable"/>) 
+    and we need to load that package to be able
     to query the width and height of the table.
   </p>
   <rcode id="gtable">
@@ -226,7 +228,7 @@ popViewport(4)
   <p>
     The 'gridGraphics' package provides a completely different approach.
     The <code>grid.echo</code> function can be used to 
-    convert the 'graphics' plot into a 'grid' equivalent
+    convert a 'graphics' plot into a 'grid' equivalent
     and then everything can be arranged using 'grid'-based tools.
   </p>
   <p>
@@ -242,7 +244,8 @@ popViewport(4)
     The <code>grid.echo</code> function opens a device off-screen that is
     the same size as the viewport that we are drawing into, calls the function
     that we gave it to draw the plot off-screen, and then draws a 'grid'
-    version of the off-screen plot in the viewport that we can see.
+    version of the off-screen plot in the viewport that we want to
+    draw into.
   </p>
   <rcode>
 <<gridGraphics>>
@@ -276,8 +279,9 @@ upViewport()
     We then navigate to the first column of the first
     (data) row of the table.  Within that cell, we push a viewport
     with clipping turned off, draw a rectangle around the cell,
-    and draw a line segment from the data point in the plot to
-    the left edge of the rectangle.  
+    and call <code>grid.line.to</code> to 
+    draw a line segment from the data point in the plot to
+    the left edge of the 'gridExtra' table cell.  
   </p>
   <rcode id="gridannotate" eval="FALSE">
 row1 <- mtcarsCols[1,]
@@ -301,12 +305,13 @@ upViewport(0)
     One disadvantage of the <code>grid.echo</code>
     approach shown above is that using explicit 
     viewports to arrange output 
-    can make your head hurt, or your fingers hurt (or both).
+    can make your head hurt from too much thinking, 
+    or your fingers hurt from too much typing (or both).
     Fortunately, 
     there are high-level functions that hide the complexity of 
     viewports from us, such as
     <code>grid.arrange</code> from 'gridExtra'.  A "gtable" from 'gtable'
-    is also hiding a lot of viewport machinery.
+    similarly hides a lot of viewport machinery.
   </p>
   <p>
     The complication with using these higher-level tools is that they
@@ -363,11 +368,12 @@ dev.off()
 <<grid.arrange>>
   </rcode>
   <p>
-    The result is now correct.  However, we still have a problem.
+    The result is now correct (the y-axis label is back).  
+    However, we still have a problem.
     What we have done is create a grob based on a graphics device that
     is sized to be exactly as big as the region that 
     the grob is going to be drawn within.
-    The reason we are using <code>grid.arrange</code> is so that
+    But the reason we are using <code>grid.arrange</code> is so that
     we do not have to figure out for ourselves how big each region
     in our arrangement is going to be.  For more complex arrangements,
     we definitely do not want to have to calculate region sizes
@@ -378,19 +384,21 @@ dev.off()
     only when it is time to draw (when <code>grid.arrange</code>
     has already figured out the region sizes).  This is the
     purpose of the new <code>echoGrob</code> function in the
-    'gridGraphics' package.
+    'gridGraphics' package, which allows us to convert 'graphics'
+    output that will be drawn in the future.
   </p>
   <p>
     The <code>echoGrob</code> function creates a grob with class
     "echogrob" that
     records a function, but does not evaluate the function
     (<code>echoGrob</code> also accepts a 
-    "recordedPlot";  see gridGraphics report [CITE] and display list report
-    [cite]).  This is an example of a 'grid' grob that calculates what
+    "recordedPlot";  see <a href="#RJ-2015-012"/>  and
+    <a href="#murrell-dl-record"/>).  
+    This is an example of a 'grid' grob that calculates what
     it will draw only when it comes time to draw the grob.
     There is a
-    <code>makeContent</code> method (CITE makeContent article)
-    for "echogrob"s that is run at drawing time.  This
+    <code>makeContent</code> method (<a href="#RJ-2013-035"/>)
+    for "echogrob"s that is run at drawing time and this
     determines the size of the viewport that drawing is occurring within,
     opens an off-screen device of that size, calls <code>grid.echo</code>
     on that device (which opens another off-screen device, calls the
@@ -400,7 +408,8 @@ dev.off()
   </p>
   <p>
     The following code shows how we might use <code>echoGrob</code>
-    to draw a 'graphics' plot next to a 'gridExtra' table, using
+    to draw a 'graphics' plot (with the correct proportions and the 
+    y-axis visible) next to a 'gridExtra' table, using
     <code>grid.arrange</code> to do the arranging.
   </p>
   <rcode>
@@ -409,8 +418,8 @@ pg <- echoGrob(function() plot(mpg ~ disp, mtcarsCols))
   </rcode>
 
   <p>
-    The following code demonstrates how <code>echoGrob</code>
-    automatically adapts to the region that it is asked to draw
+    The following code demonstrates that this <code>echoGrob</code>
+    approach automatically adapts to the region that it is asked to draw
     within.  We create an arrangement that still only has two
     regions, but we make the region on the right
     just wide enough to fit the table and allow the region on the
@@ -422,14 +431,22 @@ pg <- echoGrob(function() plot(mpg ~ disp, mtcarsCols))
 widths <- unit.c(unit(1, "null"), gtable_width(gt))
 grid.arrange(pg, gt, widths=widths)
   </rcode>
-  
-  <h2><a name="force">Details</a></h2>
+  <p>
+    The plot on the left is wider than before because the table on the
+    right is only taking up as much room as it needs.
+  </p>
+
+  <h2><a name="force">Editing <code>echoGrob</code> output</a></h2>
   <p>
     A disadvantage of using tools like <code>echoGrob</code>
     (and "gtable"s and <code>grid.arrange</code>),
     that have a <code>makeContent</code>
     method to determine what to draw at drawing time, is
     that they do not record what they draw on the 'grid' display list.
+    The output from <code>grid.ls</code> below shows that, after the 
+    drawing that we did above, there is a single
+    collective grob on the 'grid' display list, which represents
+    the plot and table that we have drawn.
   </p>
   <rcode id="grid.ls" eval="FALSE">
 grid.ls()
@@ -442,6 +459,11 @@ grid.ls()
     This means that we cannot modify the output of these tools.
     However, we can gain access to everything that has been drawn by
     calling the <code>grid.force</code> function.  
+    The output from <code>grid.ls</code> below shows that, after
+    calling <code>grid.force</code>, we have access to 
+    all of the individual grobs
+    representing the individual lines, points, and text that make 
+    up the plot and table that we have drawn.
   </p>
 
   <rcode id="grid.force" eval="FALSE">
@@ -457,7 +479,7 @@ grid.force()
   </rcode>
 
   <p>
-    With the grobs (and viewports) available, we can use the same
+    With these low-level grobs (and viewports) available, we can use the same
     code that we used in a previous example to draw a line from
     a data point on the plot to a cell in the table.
   </p>
@@ -469,18 +491,39 @@ grid.force()
 <<grid.force>>
 <<gridannotate>>
   </rcode>
-  <p>
-    TODO: mention 'cowplot' package (CITE), which provides a convenient
-    high-level interface to many of these ideas and tools.
-  </p>
-  <p>
-    TODO: talk to Claus Wilke about improving capture of 
-    recordedPlots and functions.
-  </p>
 
   <h2><a name="summary">Summary</a></h2>
   <p>
+    Output from the 'graphics' and 'grid' packages can co-exist
+    on a page, but the difficulty is in coordinating them.
+    The 'gridBase' package helps with creating 'grid' viewports that
+    correspond to 'graphics' figure and plot regions.
+    The 'gridGraphics' package converts 'graphics' output to 'grid'
+    output so that we can arrange 'graphics' output using 'grid' viewports.
   </p>
+  <p>
+    The 'gridExtra' package provides convenient tools so that we do not
+    have to use 'grid' viewports directly to arrange output.
+    The new function <code>echoGrob</code> in 'gridGraphics' allows us to
+    use 'gridExtra' to arrange 'graphics' output as well as 'grid'
+    output.
+  </p>
+  
+  <h2><a name="addendum">Addendum</a></h2>
+  <p>
+    An upcoming release of the 'cowplot' package (<a href="#pkg:cowplot"/>)
+    will provide
+    convenient tools so that we do not even have to use 'gridGraphics' directly.
+    For example, the following code 
+    combines a 'graphics' plot function with the 'gridExtra' table
+    that we created earlier.
+  </p>
+  <rcode message="FALSE">
+library(cowplot)    
+  </rcode>
+  <rcode>
+plot_grid(function() plot(mpg ~ disp, mtcarsCols), gt, ncol=2)
+  </rcode>
 
   <h2><a name="requirements">Technical requirements</a></h2>
   <p>
@@ -489,6 +532,9 @@ grid.force()
     0.4-0</a> of the 'gridGraphics' package, which in turn relies on 
     the development version of R (revision r74931),
     which will become R version 3.6.0.
+    The 'cowplot' example requires 
+    at least version 0.9.99, which at the time of writing was only
+    available on <a href="https://github.com/wilkelab/cowplot">github</a>.
   </p>
   <p>
     This report was generated within a Docker container
@@ -544,6 +590,31 @@ grid.force()
     <li>
       <a name="pkg:gridGraphics"/>
     </li>
+    <li>
+      <a name="pkg:gridExtra"/>
+    </li>
+    <li>
+      <a name="pkg:ggplot2"/>
+    </li>
+    <li>
+      <a name="pkg:lattice"/>
+    </li>
+    <li>
+      <a name="pkg:gtable"/>
+    </li>
+    <li>
+      <a name="RJ-2015-012"/>
+    </li>
+    <li>
+      <a name="murrell-dl-record"/>
+    </li>
+    <li>
+      <a name="RJ-2013-035"/>
+    </li>
+    <li>
+      <a name="pkg:cowplot"/>
+    </li>
+
   </ul>
 
   <hr/>

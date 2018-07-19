@@ -103,7 +103,7 @@
     </p>
     <p class="date">
     Version 1:
-Wednesday 27 June 2018
+Thursday 19 July 2018
   </p>
 
 
@@ -116,8 +116,8 @@ Wednesday 27 June 2018
     <hr>
     <p>
     This report discusses ways to combine graphics output from the
-    'graphics' package and the 'grid' package in R.
-    We also introduce a new function <code>echoGrob</code>
+    'graphics' package and the 'grid' package in R and
+    introduces a new function <code>echoGrob</code>
     in the 'gridGraphics' package.
   </p>
     <div>
@@ -133,19 +133,22 @@ Wednesday 27 June 2018
           <a href="#echogrob">3. The echoGrob function</a>
         </li>
         <li>
-          <a href="#force">4. Details</a>
+          <a href="#force">4. Editing echoGrob output</a>
         </li>
         <li>
           <a href="#summary">5. Summary</a>
         </li>
         <li>
-          <a href="#requirements">6. Technical requirements</a>
+          <a href="#addendum">6. Addendum</a>
         </li>
         <li>
-          <a href="#Resources">7. Resources</a>
+          <a href="#requirements">7. Technical requirements</a>
         </li>
         <li>
-          <a href="#references">8. References</a>
+          <a href="#Resources">8. Resources</a>
+        </li>
+        <li>
+          <a href="#references">9. References</a>
         </li>
       </ul>
     </div>
@@ -159,17 +162,18 @@ Wednesday 27 June 2018
     'graphics'-based plot.  The image below shows the sort of result
     we are looking for.  On the left is a 'graphics' scatterplot
     and on the right is output from the <code>grid.table</code>
-    function from the 'gridExtra' package (<a href="#pkg:gridExtra"></a>).
+    function from the 'gridExtra' package (<a href="#pkg:gridExtra">Auguie, 2017</a>).
   </p>
 
 
 
 
-<div class="chunk" id="unnamed-chunk-4"><div class="rimage default"><img src="figure/unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" class="plot" /></div></div>
+<div class="chunk" id="unnamed-chunk-4"><div class="rimage default"><img src="figure/unnamed-chunk-4-1.svg" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" class="plot" /></div></div>
     <p>
     This report discusses some different solutions to this problem,
     including a new approach based on the <code>echoGrob</code>
-    function from the 'gridGraphics' package (CITE).
+    function from the 'gridGraphics' package 
+    (<a href="#pkg:gridGraphics">Murrell and Wen, 2018</a>).
   </p>
     <h2>
       <a name="combining">2. Combining 'graphics' and 'grid' output</a>
@@ -178,12 +182,12 @@ Wednesday 27 June 2018
     The 'graphics' and 'grid' graphics systems in R (<a href="#R">R Core Team, 2018</a>)
     are completely independent from each other.  When it comes to
     arranging multiple plots on a page, this means that 'grid'-based
-    plots, such as those from the 'lattice' package (<a href="#pkg:lattice"></a>)
-    or those from the 'ggplot2' package (<a href="#pkg:ggplot2"></a>),
+    plots, such as those from the 'lattice' package (<a href="#pkg:lattice">Sarkar, 2008</a>)
+    or those from the 'ggplot2' package (<a href="#pkg:ggplot2">Wickham, 2009</a>),
     do not respond to <code>par(mfrow)</code> from the 'graphics' package.
     Conversely, 'graphics'-based plots do not respond to 
     viewports from 'grid', or higher level 'grid'-based tools
-    such as <code>grid.arrange</code> from the 'gridExtra' package.
+    such as the <code>grid.arrange</code> function from the 'gridExtra' package.
   </p>
     <p>
     Although the two graphics systems ignore each other,
@@ -191,8 +195,8 @@ Wednesday 27 June 2018
     on the same page.  The following code provides a simple
     demonstration; if we draw a 
     'graphics' scatterplot and a 'gridExtra' table on the 
-    same page, both types of output are drawn, 
-    though the latter completely overlaps with the former.
+    same page, both types of output are drawn; 
+    the latter just completely overlaps with the former.
   </p>
 <div class="chunk" id="unnamed-chunk-5"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(gridExtra)</span>
 <span class="hl std">mtcarsCols</span> <span class="hl kwb">&lt;-</span> <span class="hl std">mtcars[</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">)]</span>
@@ -201,7 +205,7 @@ Wednesday 27 June 2018
 <div class="chunk" id="unnamed-chunk-6"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">plot</span><span class="hl std">(mpg</span> <span class="hl opt">~</span> <span class="hl std">disp, mtcarsCols)</span>
 <span class="hl kwd">grid.table</span><span class="hl std">(</span><span class="hl kwd">head</span><span class="hl std">(mtcarsCols))</span>
 </pre></div>
-</div><div class="rimage default"><img src="figure/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" class="plot" /></div></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-6-1.svg" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" class="plot" /></div></div>
     <p>
     Because the two graphics systems essentially ignore each other,
     we can produce simple arrangements by arranging output for
@@ -219,7 +223,7 @@ Wednesday 27 June 2018
 <span class="hl kwd">grid.table</span><span class="hl std">(</span><span class="hl kwd">head</span><span class="hl std">(mtcarsCols))</span>
 <span class="hl kwd">popViewport</span><span class="hl std">()</span>
 </pre></div>
-</div><div class="rimage default"><img src="figure/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" class="plot" /></div></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-7-1.svg" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" class="plot" /></div></div>
     <p>
     The 'gridBase' package allows us to do something similar, but
     ensures that the 'grid' viewport is coherent with the 
@@ -247,7 +251,7 @@ Wednesday 27 June 2018
 <span class="hl kwd">grid.table</span><span class="hl std">(</span><span class="hl kwd">head</span><span class="hl std">(mtcarsCols))</span>
 <span class="hl kwd">popViewport</span><span class="hl std">(</span><span class="hl num">2</span><span class="hl std">)</span>
 </pre></div>
-</div><div class="rimage default"><img src="figure/unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" class="plot" /></div></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-8-1.svg" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" class="plot" /></div></div>
     <p>
     The advantage of working with properly aligned viewports like this
     is that we can locate output precisely, without guesswork,
@@ -269,7 +273,8 @@ Wednesday 27 June 2018
   </p>
     <p>
     The table that 'gridExtra' creates is actually a "gtable" from the
-    'gtable' package (CITE) and we need to load that package to be able
+    'gtable' package (<a href="#pkg:gtable">Wickham, 2016</a>) 
+    and we need to load that package to be able
     to query the width and height of the table.
   </p>
 <div class="chunk" id="gtable"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(gtable)</span>
@@ -287,11 +292,11 @@ Wednesday 27 June 2018
 <span class="hl kwd">grid.draw</span><span class="hl std">(gt)</span>
 <span class="hl kwd">popViewport</span><span class="hl std">(</span><span class="hl num">4</span><span class="hl std">)</span>
 </pre></div>
-</div><div class="rimage default"><img src="figure/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" class="plot" /></div></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-9-1.svg" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" class="plot" /></div></div>
     <p>
     The 'gridGraphics' package provides a completely different approach.
     The <code>grid.echo</code> function can be used to 
-    convert the 'graphics' plot into a 'grid' equivalent
+    convert a 'graphics' plot into a 'grid' equivalent
     and then everything can be arranged using 'grid'-based tools.
   </p>
     <p>
@@ -307,7 +312,8 @@ Wednesday 27 June 2018
     The <code>grid.echo</code> function opens a device off-screen that is
     the same size as the viewport that we are drawing into, calls the function
     that we gave it to draw the plot off-screen, and then draws a 'grid'
-    version of the off-screen plot in the viewport that we can see.
+    version of the off-screen plot in the viewport that we want to
+    draw into.
   </p>
 <div class="chunk" id="unnamed-chunk-10"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(gridGraphics)</span>
 </pre></div>
@@ -324,7 +330,7 @@ Wednesday 27 June 2018
           <span class="hl kwc">newpage</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span>
 <span class="hl kwd">upViewport</span><span class="hl std">()</span>
 </pre></div>
-</div><div class="rimage default"><img src="figure/grid.echo-1.png" title="plot of chunk grid.echo" alt="plot of chunk grid.echo" class="plot" /></div></div>
+</div><div class="rimage default"><img src="figure/grid.echo-1.svg" title="plot of chunk grid.echo" alt="plot of chunk grid.echo" class="plot" /></div></div>
     <p>
     The result looks the same as several previous examples, but it
     is different because all of the drawing was performed by 'grid'.
@@ -341,8 +347,9 @@ Wednesday 27 June 2018
     We then navigate to the first column of the first
     (data) row of the table.  Within that cell, we push a viewport
     with clipping turned off, draw a rectangle around the cell,
-    and draw a line segment from the data point in the plot to
-    the left edge of the rectangle.  
+    and call <code>grid.line.to</code> to 
+    draw a line segment from the data point in the plot to
+    the left edge of the 'gridExtra' table cell.  
   </p>
 <div class="chunk" id="gridannotate"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">row1</span> <span class="hl kwb">&lt;-</span> <span class="hl std">mtcarsCols[</span><span class="hl num">1</span><span class="hl std">,]</span>
 <span class="hl kwd">downViewport</span><span class="hl std">(</span><span class="hl str">&quot;plot1-window-1-1&quot;</span><span class="hl std">)</span>
@@ -356,20 +363,21 @@ Wednesday 27 June 2018
 <span class="hl kwd">upViewport</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">)</span>
 </pre></div>
 </div></div>
-<div class="chunk" id="unnamed-chunk-11"><div class="rimage default"><img src="figure/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" class="plot" /></div></div>
+<div class="chunk" id="unnamed-chunk-11"><div class="rimage default"><img src="figure/unnamed-chunk-11-1.svg" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" class="plot" /></div></div>
     <h2>
-      <a name="echogrob">3. The echoGrob function<code>echoGrob</code> function</a>
+      <a name="echogrob">3. The <code>echoGrob</code> function</a>
     </h2>
     <p>
     One disadvantage of the <code>grid.echo</code>
     approach shown above is that using explicit 
     viewports to arrange output 
-    can make your head hurt, or your fingers hurt (or both).
+    can make your head hurt from too much thinking, 
+    or your fingers hurt from too much typing (or both).
     Fortunately, 
     there are high-level functions that hide the complexity of 
     viewports from us, such as
     <code>grid.arrange</code> from 'gridExtra'.  A "gtable" from 'gtable'
-    is also hiding a lot of viewport machinery.
+    similarly hides a lot of viewport machinery.
   </p>
     <p>
     The complication with using these higher-level tools is that they
@@ -399,7 +407,7 @@ Wednesday 27 June 2018
   </p>
 <div class="chunk" id="grid.arrange"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">grid.arrange</span><span class="hl std">(pg, gt,</span> <span class="hl kwc">ncol</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span>
 </pre></div>
-</div><div class="rimage default"><img src="figure/grid.arrange-1.png" title="plot of chunk grid.arrange" alt="plot of chunk grid.arrange" class="plot" /></div></div>
+</div><div class="rimage default"><img src="figure/grid.arrange-1.svg" title="plot of chunk grid.arrange" alt="plot of chunk grid.arrange" class="plot" /></div></div>
     <p>
     But there is a problem - the y-axis label is missing from the plot.
     This happens because the plot that we echoed and then grabbed was
@@ -421,13 +429,14 @@ Wednesday 27 June 2018
 </div></div>
 <div class="chunk" id="unnamed-chunk-14"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">grid.arrange</span><span class="hl std">(pg, gt,</span> <span class="hl kwc">ncol</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span>
 </pre></div>
-</div><div class="rimage default"><img src="figure/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" class="plot" /></div></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-14-1.svg" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" class="plot" /></div></div>
     <p>
-    The result is now correct.  However, we still have a problem.
+    The result is now correct (the y-axis label is back).  
+    However, we still have a problem.
     What we have done is create a grob based on a graphics device that
     is sized to be exactly as big as the region that 
     the grob is going to be drawn within.
-    The reason we are using <code>grid.arrange</code> is so that
+    But the reason we are using <code>grid.arrange</code> is so that
     we do not have to figure out for ourselves how big each region
     in our arrangement is going to be.  For more complex arrangements,
     we definitely do not want to have to calculate region sizes
@@ -438,19 +447,21 @@ Wednesday 27 June 2018
     only when it is time to draw (when <code>grid.arrange</code>
     has already figured out the region sizes).  This is the
     purpose of the new <code>echoGrob</code> function in the
-    'gridGraphics' package.
+    'gridGraphics' package, which allows us to convert 'graphics'
+    output that will be drawn in the future.
   </p>
     <p>
     The <code>echoGrob</code> function creates a grob with class
     "echogrob" that
     records a function, but does not evaluate the function
     (<code>echoGrob</code> also accepts a 
-    "recordedPlot";  see gridGraphics report [CITE] and display list report
-    [cite]).  This is an example of a 'grid' grob that calculates what
+    "recordedPlot";  see <a href="#RJ-2015-012">Murrell, 2015</a>  and
+    <a href="#murrell-dl-record">Murrell et al., 2015</a>).  
+    This is an example of a 'grid' grob that calculates what
     it will draw only when it comes time to draw the grob.
     There is a
-    <code>makeContent</code> method (CITE makeContent article)
-    for "echogrob"s that is run at drawing time.  This
+    <code>makeContent</code> method (<a href="#RJ-2013-035">Murrell, 2013</a>)
+    for "echogrob"s that is run at drawing time and this
     determines the size of the viewport that drawing is occurring within,
     opens an off-screen device of that size, calls <code>grid.echo</code>
     on that device (which opens another off-screen device, calls the
@@ -460,16 +471,17 @@ Wednesday 27 June 2018
   </p>
     <p>
     The following code shows how we might use <code>echoGrob</code>
-    to draw a 'graphics' plot next to a 'gridExtra' table, using
+    to draw a 'graphics' plot (with the correct proportions and the 
+    y-axis visible) next to a 'gridExtra' table, using
     <code>grid.arrange</code> to do the arranging.
   </p>
 <div class="chunk" id="unnamed-chunk-15"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">pg</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">echoGrob</span><span class="hl std">(</span><span class="hl kwa">function</span><span class="hl std">()</span> <span class="hl kwd">plot</span><span class="hl std">(mpg</span> <span class="hl opt">~</span> <span class="hl std">disp, mtcarsCols))</span>
 <span class="hl kwd">grid.arrange</span><span class="hl std">(pg, gt,</span> <span class="hl kwc">ncol</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span>
 </pre></div>
-</div><div class="rimage default"><img src="figure/unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" class="plot" /></div></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-15-1.svg" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" class="plot" /></div></div>
     <p>
-    The following code demonstrates how <code>echoGrob</code>
-    automatically adapts to the region that it is asked to draw
+    The following code demonstrates that this <code>echoGrob</code>
+    approach automatically adapts to the region that it is asked to draw
     within.  We create an arrangement that still only has two
     regions, but we make the region on the right
     just wide enough to fit the table and allow the region on the
@@ -480,9 +492,13 @@ Wednesday 27 June 2018
 <div class="chunk" id="adapt"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">widths</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">unit.c</span><span class="hl std">(</span><span class="hl kwd">unit</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl str">&quot;null&quot;</span><span class="hl std">),</span> <span class="hl kwd">gtable_width</span><span class="hl std">(gt))</span>
 <span class="hl kwd">grid.arrange</span><span class="hl std">(pg, gt,</span> <span class="hl kwc">widths</span><span class="hl std">=widths)</span>
 </pre></div>
-</div><div class="rimage default"><img src="figure/adapt-1.png" title="plot of chunk adapt" alt="plot of chunk adapt" class="plot" /></div></div>
+</div><div class="rimage default"><img src="figure/adapt-1.svg" title="plot of chunk adapt" alt="plot of chunk adapt" class="plot" /></div></div>
+    <p>
+    The plot on the left is wider than before because the table on the
+    right is only taking up as much room as it needs.
+  </p>
     <h2>
-      <a name="force">4. Details</a>
+      <a name="force">4. Editing <code>echoGrob</code> output</a>
     </h2>
     <p>
     A disadvantage of using tools like <code>echoGrob</code>
@@ -490,6 +506,10 @@ Wednesday 27 June 2018
     that have a <code>makeContent</code>
     method to determine what to draw at drawing time, is
     that they do not record what they draw on the 'grid' display list.
+    The output from <code>grid.ls</code> below shows that, after the 
+    drawing that we did above, there is a single
+    collective grob on the 'grid' display list, which represents
+    the plot and table that we have drawn.
   </p>
 <div class="chunk" id="grid.ls"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">grid.ls</span><span class="hl std">()</span>
 </pre></div>
@@ -501,6 +521,11 @@ Wednesday 27 June 2018
     This means that we cannot modify the output of these tools.
     However, we can gain access to everything that has been drawn by
     calling the <code>grid.force</code> function.  
+    The output from <code>grid.ls</code> below shows that, after
+    calling <code>grid.force</code>, we have access to 
+    all of the individual grobs
+    representing the individual lines, points, and text that make 
+    up the plot and table that we have drawn.
   </p>
 <div class="chunk" id="grid.force"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">grid.force</span><span class="hl std">()</span>
 </pre></div>
@@ -567,7 +592,7 @@ Wednesday 27 June 2018
 </pre></div>
 </div></div>
     <p>
-    With the grobs (and viewports) available, we can use the same
+    With these low-level grobs (and viewports) available, we can use the same
     code that we used in a previous example to draw a line from
     a data point on the plot to a cell in the table.
   </p>
@@ -583,35 +608,60 @@ Wednesday 27 June 2018
 <span class="hl kwd">upViewport</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">)</span>
 </pre></div>
 </div></div>
-<div class="chunk" id="unnamed-chunk-20"><div class="rimage default"><img src="figure/unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" class="plot" /></div></div>
-    <p>
-    TODO: mention 'cowplot' package (CITE), which provides a convenient
-    high-level interface to many of these ideas and tools.
-  </p>
-    <p>
-    TODO: talk to Claus Wilke about improving capture of 
-    recordedPlots and functions.
-  </p>
+<div class="chunk" id="unnamed-chunk-20"><div class="rimage default"><img src="figure/unnamed-chunk-20-1.svg" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" class="plot" /></div></div>
     <h2>
       <a name="summary">5. Summary</a>
     </h2>
     <p>
+    Output from the 'graphics' and 'grid' packages can co-exist
+    on a page, but the difficulty is in coordinating them.
+    The 'gridBase' package helps with creating 'grid' viewports that
+    correspond to 'graphics' figure and plot regions.
+    The 'gridGraphics' package converts 'graphics' output to 'grid'
+    output so that we can arrange 'graphics' output using 'grid' viewports.
+  </p>
+    <p>
+    The 'gridExtra' package provides convenient tools so that we do not
+    have to use 'grid' viewports directly to arrange output.
+    The new function <code>echoGrob</code> in 'gridGraphics' allows us to
+    use 'gridExtra' to arrange 'graphics' output as well as 'grid'
+    output.
   </p>
     <h2>
-      <a name="requirements">6. Technical requirements</a>
+      <a name="addendum">6. Addendum</a>
+    </h2>
+    <p>
+    An upcoming release of the 'cowplot' package (<a href="#pkg:cowplot">Wilke, 2018</a>)
+    will provide
+    convenient tools so that we do not even have to use 'gridGraphics' directly.
+    For example, the following code 
+    combines a 'graphics' plot function with the 'gridExtra' table
+    that we created earlier.
+  </p>
+<div class="chunk" id="unnamed-chunk-21"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(cowplot)</span>
+</pre></div>
+</div></div>
+<div class="chunk" id="unnamed-chunk-22"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">plot_grid</span><span class="hl std">(</span><span class="hl kwa">function</span><span class="hl std">()</span> <span class="hl kwd">plot</span><span class="hl std">(mpg</span> <span class="hl opt">~</span> <span class="hl std">disp, mtcarsCols), gt,</span> <span class="hl kwc">ncol</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-22-1.svg" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" class="plot" /></div></div>
+    <h2>
+      <a name="requirements">7. Technical requirements</a>
     </h2>
     <p>
     The examples and discussion in this document relate to <a href="https://github.com/pmur002/gridGraphics/releases/tag/v0.4-0">version
     0.4-0</a> of the 'gridGraphics' package, which in turn relies on 
     the development version of R (revision r74931),
     which will become R version 3.6.0.
+    The 'cowplot' example requires 
+    at least version 0.9.99, which at the time of writing was only
+    available on <a href="https://github.com/wilkelab/cowplot">github</a>.
   </p>
     <p>
     This report was generated within a Docker container
     (see <a href="#Resources">Resources</a> section below).
   </p>
     <h2>
-      <a name="Resources">7. Resources</a>
+      <a name="Resources">8. Resources</a>
     </h2>
     <ul>
       <li>
@@ -647,9 +697,35 @@ Wednesday 27 June 2018
     [ <a href="how-to-cite.bib">bib</a> ] 
   </p>
     <h2>
-      <a name="references">8. References</a>
+      <a name="references">9. References</a>
     </h2>
     <dl>
+<dt>
+[<a name="pkg:gridExtra">Auguie, 2017</a>]
+</dt>
+<dd>
+Auguie, B. (2017).
+ <em>gridExtra: Miscellaneous Functions for "Grid" Graphics</em>.
+ R package version 2.3.
+[ <a href="echogrob-bib_bib.html#pkg:gridExtra">bib</a> | 
+<a href="https://CRAN.R-project.org/package=gridExtra">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="RJ-2013-035">Murrell, 2013</a>]
+</dt>
+<dd>
+Murrell, P. (2013).
+ Changes to grid for R 3.0.0.
+ <em>The R Journal</em>, 5(2):148--160.
+[ <a href="echogrob-bib_bib.html#RJ-2013-035">bib</a> | 
+<a href="https://journal.r-project.org/archive/2013/RJ-2013-035/index.html">.html</a> ]
+
+</dd>
+
+
 <dt>
 [<a name="pkg:gridBase">Murrell, 2014</a>]
 </dt>
@@ -659,6 +735,32 @@ Murrell, P. (2014).
  R package version 0.4-7.
 [ <a href="echogrob-bib_bib.html#pkg:gridBase">bib</a> | 
 <a href="https://CRAN.R-project.org/package=gridBase">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="RJ-2015-012">Murrell, 2015</a>]
+</dt>
+<dd>
+Murrell, P. (2015).
+ The gridGraphics Package.
+ <em>The R Journal</em>, 7(1):151--162.
+[ <a href="echogrob-bib_bib.html#RJ-2015-012">bib</a> | 
+<a href="https://journal.r-project.org/archive/2015/RJ-2015-012/index.html">.html</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="murrell-dl-record">Murrell et al., 2015</a>]
+</dt>
+<dd>
+Murrell, P., Ooms, J., and Allaire, J. J. (2015).
+ Recording and replaying the graphics engine display list.
+ Technical Report 2015-07, Department of Statistics, The University of
+  Auckland.
+[ <a href="echogrob-bib_bib.html#murrell-dl-record">bib</a> ]
 
 </dd>
 
@@ -712,6 +814,33 @@ Wickham, H. (2009).
  Springer-Verlag New York.
 [ <a href="echogrob-bib_bib.html#pkg:ggplot2">bib</a> | 
 <a href="http://ggplot2.org">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="pkg:gtable">Wickham, 2016</a>]
+</dt>
+<dd>
+Wickham, H. (2016).
+ <em>gtable: Arrange 'Grobs' in Tables</em>.
+ R package version 0.2.0.
+[ <a href="echogrob-bib_bib.html#pkg:gtable">bib</a> | 
+<a href="https://CRAN.R-project.org/package=gtable">http</a> ]
+
+</dd>
+
+
+<dt>
+[<a name="pkg:cowplot">Wilke, 2018</a>]
+</dt>
+<dd>
+Wilke, C. O. (2018).
+ <em>cowplot: Streamlined Plot Theme and Plot Annotations for
+  'ggplot2'</em>.
+ R package version 0.9.3.
+[ <a href="echogrob-bib_bib.html#pkg:cowplot">bib</a> | 
+<a href="https://CRAN.R-project.org/package=cowplot">http</a> ]
 
 </dd>
 </dl>

@@ -1,6 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <html>
   <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <style type="text/css">
     @media print {
       body { }
@@ -33,7 +33,7 @@
     <p>
       <span style="font-style: italic">by Paul Murrell</span>
       <a href="http://orcid.org">
-        <img alt="" src="https://www.stat.auckland.ac.nz/~paul/ORCID/ORCiD.png" style="width: 16px; height: 16px; vertical-align: middle">
+        <img alt="" src="https://www.stat.auckland.ac.nz/~paul/ORCID/ORCiD.png" style="width: 16px; height: 16px; vertical-align: middle"/>
       </a>
       <span style="font-family: mono; font-size: small">
         <a href="http://orcid.org/0000-0002-3224-8858">http://orcid.org/0000-0002-3224-8858</a>
@@ -41,26 +41,26 @@
     </p>
     <p class="date">
     Version 1:
-<!--begin.rcode echo=FALSE, results="asis"
+    <rcode echo="FALSE" results="asis"><![CDATA[
 cat(format(Sys.Date(), "%A %d %B %Y"))
-    end.rcode-->
+    ]]></rcode>
   </p>
-<!--begin.rcode init, echo=FALSE, message=FALSE, results="hide"
+    <rcode id="init" echo="FALSE" message="FALSE" results="hide"><![CDATA[
 opts_chunk$set(comment=" ", tidy=FALSE)
 options(width=100)
 ## For wonky desktop set up
 options(bitmapType="cairo")
-  end.rcode-->
-<!--begin.rcode echo=FALSE
+  ]]></rcode>
+    <rcode echo="FALSE"><![CDATA[
     library(grid)
-  end.rcode-->
-    <hr>
-    <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img class="CC" alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">This document</span>
+  ]]></rcode>
+    <hr/>
+    <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img class="CC" alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"/></a><br/><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">This document</span>
     by <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">Paul
     Murrell</span> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative
     Commons Attribution 4.0 International License</a>.
   </p>
-    <hr>
+    <hr/>
     <p>
     This report discusses ways to combine graphics output from the
     'graphics' package and the 'grid' package in R and
@@ -111,23 +111,23 @@ options(bitmapType="cairo")
     and on the right is output from the <code>grid.table</code>
     function from the 'gridExtra' package (<a href="#pkg:gridExtra">Auguie, 2017</a>).
   </p>
-<!--begin.rcode data, echo=FALSE
+    <rcode id="data" echo="FALSE"><![CDATA[
 mtcarsCols <- mtcars[c(1, 3)]
-  end.rcode-->
-<!--begin.rcode gridExtra, echo=FALSE
+  ]]></rcode>
+    <rcode id="gridExtra" echo="FALSE"><![CDATA[
 library(gridExtra)    
-  end.rcode-->
-<!--begin.rcode gridGraphics, echo=FALSE
+  ]]></rcode>
+    <rcode id="gridGraphics" echo="FALSE"><![CDATA[
 library(gridGraphics)
-  end.rcode-->
-<!--begin.rcode echo=FALSE
+  ]]></rcode>
+    <rcode echo="FALSE"><![CDATA[
 p <- echoGrob(function() plot(mpg ~ disp, mtcarsCols), 
               prefix="plot1", name="plot1")
 t <- tableGrob(head(mtcarsCols))    
-  end.rcode-->
-<!--begin.rcode echo=FALSE
+  ]]></rcode>
+    <rcode echo="FALSE"><![CDATA[
 grid.arrange(p, t, ncol=2)
-  end.rcode-->
+  ]]></rcode>
     <p>
     This report discusses some different solutions to this problem,
     including a new approach based on the <code>echoGrob</code>
@@ -157,14 +157,14 @@ grid.arrange(p, t, ncol=2)
     same page, both types of output are drawn; 
     the latter just completely overlaps with the former.
   </p>
-<!--begin.rcode 
+    <rcode><![CDATA[
 <<gridExtra>>
 <<data>>
-  end.rcode-->
-<!--begin.rcode 
+  ]]></rcode>
+    <rcode><![CDATA[
 plot(mpg ~ disp, mtcarsCols)
 grid.table(head(mtcarsCols))
-  end.rcode-->
+  ]]></rcode>
     <p>
     Because the two graphics systems essentially ignore each other,
     we can produce simple arrangements by arranging output for
@@ -173,24 +173,24 @@ grid.table(head(mtcarsCols))
     left, using <code>par(mfrow)</code>,
     and the table to the right, using a 'grid' viewport.
   </p>
-<!--begin.rcode grid
+    <rcode id="grid"><![CDATA[
 library(grid)    
-  end.rcode-->
-<!--begin.rcode 
+  ]]></rcode>
+    <rcode><![CDATA[
 par(mfrow=c(1, 2))
 plot(mpg ~ disp, mtcarsCols)
 pushViewport(viewport(x=.5, width=.5, just="left"))
 grid.table(head(mtcarsCols))
 popViewport()
-  end.rcode-->
+  ]]></rcode>
     <p>
     The 'gridBase' package allows us to do something similar, but
     ensures that the 'grid' viewport is coherent with the 
     'graphics' figure regions. 
   </p>
-<!--begin.rcode gridBase
+    <rcode id="gridBase"><![CDATA[
 library(gridBase)    
-  end.rcode-->
+  ]]></rcode>
     <p>
     In the code below, we set up an arrangement of two plots as
     before, with <code>par(mfrow)</code>.  The 'graphics' plot
@@ -202,7 +202,7 @@ library(gridBase)
     viewport then the figure region viewport and draw the 
     'gridExtra' table within that.
   </p>
-<!--begin.rcode 
+    <rcode><![CDATA[
 par(mfrow=c(1, 2))
 plot(mpg ~ disp, mtcarsCols)
 plot.new()
@@ -210,7 +210,7 @@ basevps <- baseViewports()
 pushViewport(basevps$inner, basevps$figure)
 grid.table(head(mtcarsCols))
 popViewport(2)    
-  end.rcode-->
+  ]]></rcode>
     <p>
     The advantage of working with properly aligned viewports like this
     is that we can locate output precisely, without guesswork,
@@ -236,10 +236,10 @@ popViewport(2)
     and we need to load that package to be able
     to query the width and height of the table.
   </p>
-<!--begin.rcode gtable
+    <rcode id="gtable"><![CDATA[
 library(gtable)
-  end.rcode-->
-<!--begin.rcode 
+  ]]></rcode>
+    <rcode><![CDATA[
 plot(mpg ~ disp, mtcarsCols)
 basevps <- baseViewports()
 pushViewport(basevps$inner, basevps$figure, basevps$plot)
@@ -251,7 +251,7 @@ pushViewport(viewport(x=unit(1, "npc") - unit(1, "mm"),
                       height=gtable_height(gt)))
 grid.draw(gt)
 popViewport(4)
-  end.rcode-->
+  ]]></rcode>
     <p>
     The 'gridGraphics' package provides a completely different approach.
     The <code>grid.echo</code> function can be used to 
@@ -274,10 +274,10 @@ popViewport(4)
     version of the off-screen plot in the viewport that we want to
     draw into.
   </p>
-<!--begin.rcode 
+    <rcode><![CDATA[
 <<gridGraphics>>
-  end.rcode-->
-<!--begin.rcode grid.echo
+  ]]></rcode>
+    <rcode id="grid.echo"><![CDATA[
 pushViewport(viewport(x=0, width=.5, just="left", name="left"))
 upViewport()
 pushViewport(viewport(x=.5, width=.5, just="left", name="right"))
@@ -289,7 +289,7 @@ downViewport("left")
 grid.echo(function() plot(mpg ~ disp, mtcarsCols),
           newpage=FALSE)
 upViewport()
-  end.rcode-->
+  ]]></rcode>
     <p>
     The result looks the same as several previous examples, but it
     is different because all of the drawing was performed by 'grid'.
@@ -310,7 +310,7 @@ upViewport()
     draw a line segment from the data point in the plot to
     the left edge of the 'gridExtra' table cell.  
   </p>
-<!--begin.rcode gridannotate, eval=FALSE
+    <rcode id="gridannotate" eval="FALSE"><![CDATA[
 row1 <- mtcarsCols[1,]
 downViewport("plot1-window-1-1")
 grid.points(row1$disp, row1$mpg, pch=16)
@@ -321,11 +321,11 @@ pushViewport(viewport(clip="off"))
 grid.rect(gp=gpar(fill=NA))
 grid.line.to(0, .5)
 upViewport(0)
-  end.rcode-->
-<!--begin.rcode echo=FALSE
+  ]]></rcode>
+    <rcode echo="FALSE"><![CDATA[
 <<grid.echo>>
 <<gridannotate>>
-  end.rcode-->
+  ]]></rcode>
     <h2>
       <a name="echogrob">3. The <code>echoGrob</code> function</a>
     </h2>
@@ -356,25 +356,25 @@ upViewport(0)
     <code>grid.echo</code>, and then creates a grob by calling
     <code>grid.grab</code> on the result.
   </p>
-<!--begin.rcode grid.grab, eval=FALSE
+    <rcode id="grid.grab" eval="FALSE"><![CDATA[
 plot(mpg ~ disp, mtcarsCols)
 grid.echo()
 pg <- grid.grab()
-  end.rcode-->
-<!--begin.rcode echo=FALSE, results="hide", fig.keep="none"
+  ]]></rcode>
+    <rcode echo="FALSE" results="hide" fig.keep="none"><![CDATA[
 pdf(NULL)
 dev.control("enable")
 <<grid.grab>>
 dev.off()
-  end.rcode-->
+  ]]></rcode>
     <p>
     We can then pass that grob, <code>pg </code> in this case, to functions
     like <code>grid.arrange</code>.  The following code arranges this
     grob alongside the table grob that we created previously.
   </p>
-<!--begin.rcode grid.arrange
+    <rcode id="grid.arrange"><![CDATA[
 grid.arrange(pg, gt, ncol=2)
-  end.rcode-->
+  ]]></rcode>
     <p>
     But there is a problem - the y-axis label is missing from the plot.
     This happens because the plot that we echoed and then grabbed was
@@ -386,15 +386,15 @@ grid.arrange(pg, gt, ncol=2)
     to draw, echo, and grab the plot within a device that is only 
     half the width of a normal device.
   </p>
-<!--begin.rcode results="hide", fig.keep="none"
+    <rcode results="hide" fig.keep="none"><![CDATA[
 pdf(NULL, width=3.5, height=7)
 dev.control("enable")
 <<grid.grab>>
 dev.off()
-  end.rcode-->
-<!--begin.rcode 
+  ]]></rcode>
+    <rcode><![CDATA[
 <<grid.arrange>>
-  end.rcode-->
+  ]]></rcode>
     <p>
     The result is now correct (the y-axis label is back).  
     However, we still have a problem.
@@ -440,10 +440,10 @@ dev.off()
     y-axis visible) next to a 'gridExtra' table, using
     <code>grid.arrange</code> to do the arranging.
   </p>
-<!--begin.rcode 
+    <rcode><![CDATA[
 pg <- echoGrob(function() plot(mpg ~ disp, mtcarsCols))
 <<grid.arrange>>
-  end.rcode-->
+  ]]></rcode>
     <p>
     The following code demonstrates that this <code>echoGrob</code>
     approach automatically adapts to the region that it is asked to draw
@@ -454,10 +454,10 @@ pg <- echoGrob(function() plot(mpg ~ disp, mtcarsCols))
     we can benefit from leaving the calculation of regions up to 
     <code>grid.arrange</code>.
   </p>
-<!--begin.rcode adapt
+    <rcode id="adapt"><![CDATA[
 widths <- unit.c(unit(1, "null"), gtable_width(gt))
 grid.arrange(pg, gt, widths=widths)
-  end.rcode-->
+  ]]></rcode>
     <p>
     The plot on the left is wider than before because the table on the
     right is only taking up as much room as it needs.
@@ -476,13 +476,13 @@ grid.arrange(pg, gt, widths=widths)
     collective grob on the 'grid' display list, which represents
     the plot and table that we have drawn.
   </p>
-<!--begin.rcode grid.ls, eval=FALSE
+    <rcode id="grid.ls" eval="FALSE"><![CDATA[
 grid.ls()
-  end.rcode-->
-<!--begin.rcode echo=FALSE, fig.keep="none"
+  ]]></rcode>
+    <rcode echo="FALSE" fig.keep="none"><![CDATA[
 <<adapt>>
 <<grid.ls>>
-  end.rcode-->
+  ]]></rcode>
     <p>
     This means that we cannot modify the output of these tools.
     However, we can gain access to everything that has been drawn by
@@ -493,30 +493,30 @@ grid.ls()
     representing the individual lines, points, and text that make 
     up the plot and table that we have drawn.
   </p>
-<!--begin.rcode grid.force, eval=FALSE
+    <rcode id="grid.force" eval="FALSE"><![CDATA[
 grid.force()
-  end.rcode-->
-<!--begin.rcode eval=FALSE
+  ]]></rcode>
+    <rcode eval="FALSE"><![CDATA[
 <<grid.ls>>
-  end.rcode-->
-<!--begin.rcode echo=FALSE, fig.keep="none"
+  ]]></rcode>
+    <rcode echo="FALSE" fig.keep="none"><![CDATA[
 <<adapt>>
 <<grid.force>>
 <<grid.ls>>
-  end.rcode-->
+  ]]></rcode>
     <p>
     With these low-level grobs (and viewports) available, we can use the same
     code that we used in a previous example to draw a line from
     a data point on the plot to a cell in the table.
   </p>
-<!--begin.rcode eval=FALSE
+    <rcode eval="FALSE"><![CDATA[
 <<gridannotate>>
-  end.rcode-->
-<!--begin.rcode echo=FALSE
+  ]]></rcode>
+    <rcode echo="FALSE"><![CDATA[
 <<adapt>>
 <<grid.force>>
 <<gridannotate>>
-  end.rcode-->
+  ]]></rcode>
     <h2>
       <a name="summary">5. Summary</a>
     </h2>
@@ -546,12 +546,12 @@ grid.force()
     combines a 'graphics' plot function with the 'gridExtra' table
     that we created earlier.
   </p>
-<!--begin.rcode message=FALSE
+    <rcode message="FALSE"><![CDATA[
 library(cowplot)    
-  end.rcode-->
-<!--begin.rcode 
+  ]]></rcode>
+    <rcode><![CDATA[
 plot_grid(function() plot(mpg ~ disp, mtcarsCols), gt, ncol=2)
-  end.rcode-->
+  ]]></rcode>
     <h2>
       <a name="requirements">7. Technical requirements</a>
     </h2>
@@ -607,8 +607,7 @@ plot_grid(function() plot(mpg ~ disp, mtcarsCols), gt, ncol=2)
     <h2>
       <a name="references">9. References</a>
     </h2>
-    <dl>
-<dt>
+    <dl><dt>
 [<a name="pkg:gridExtra">Auguie, 2017</a>]
 </dt>
 <dd>
@@ -752,8 +751,8 @@ Wilke, C. O. (2018).
 
 </dd>
 </dl>
-    <hr>
-    <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img class="CC" alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">This document</span>
+    <hr/>
+    <p><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img class="CC" alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"/></a><br/><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">This document</span>
     by <span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">Paul
     Murrell</span> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative
     Commons Attribution 4.0 International License</a>.
